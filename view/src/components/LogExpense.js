@@ -13,9 +13,7 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { InputLabel, MenuItem, Select } from '@mui/material';
 import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers"
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
-import {
-  formSetter,
-} from '../utils';
+import { createExpense, fetchExpense, formSetter, updateExpense } from '../utils';
 
 const theme = createTheme();
 
@@ -32,7 +30,7 @@ const LogExpense = ({ handleClose, _id, refreshExpenses }) => {
 
   const setExpenseData = async (id) => {
     // update view w/ data from model
-    const expenseById = '';
+    const expenseById = await fetchExpense(id);
     setExpense(expenseById[0]);
   };
 
@@ -53,18 +51,20 @@ const LogExpense = ({ handleClose, _id, refreshExpenses }) => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
+
     if (data.get('essential') === null) {
       data.set('essential', false);
     }
+
     if (_id) {
       formSetter(data, expense);
-      // update data from model w/ controller
-      const res = '';
+      // send user action to controller
+      const res = await updateExpense(_id, data);
       expenseListRefresh(res);
-    } else {      
-      // add data to model w/ controller
+    } else {
       data.set('created_at', expense.created_at);
-      const res = '';
+      // send user action to controller
+      const res = await createExpense(data);
       expenseListRefresh(res);
     }
   };
